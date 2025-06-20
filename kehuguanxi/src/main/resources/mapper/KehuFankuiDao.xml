@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.KehuFankuiDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.kehu_id as kehuId
+        ,a.yuangong_id as yuangongId
+        ,a.kehu_fankui_uuid_number as kehuFankuiUuidNumber
+        ,a.kehu_fankui_name as kehuFankuiName
+        ,a.kehu_fankui_file as kehuFankuiFile
+        ,a.kehu_fankui_types as kehuFankuiTypes
+        ,a.fuwu_time as fuwuTime
+        ,a.kehu_fankui_content as kehuFankuiContent
+        ,a.kehu_fankuizhuangtai_types as kehuFankuizhuangtaiTypes
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.KehuFankuiView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,kehu.yuangong_id as kehuYuangongId
+        ,kehu.kehu_uuid_number as kehuUuidNumber
+        ,kehu.kehu_name as kehuName
+        ,kehu.kehu_phone as kehuPhone
+        ,kehu.kehu_id_number as kehuIdNumber
+        ,kehu.kehu_photo as kehuPhoto
+        ,kehu.sex_types as sexTypes
+        ,kehu.kehu_email as kehuEmail
+        ,kehu.kehu_address as kehuAddress
+        ,kehu.hangye_types as hangyeTypes
+        ,kehu.zhiwei_types as zhiweiTypes
+        ,kehu.diqu_types as diquTypes
+        ,yuangong.yuangong_uuid_number as yuangongUuidNumber
+        ,yuangong.yuangong_name as yuangongName
+        ,yuangong.yuangong_phone as yuangongPhone
+        ,yuangong.yuangong_id_number as yuangongIdNumber
+        ,yuangong.yuangong_photo as yuangongPhoto
+        ,yuangong.yuangong_email as yuangongEmail
+        ,yuangong.jinyong_types as jinyongTypes
+
+        FROM kehu_fankui  a
+        left JOIN kehu kehu ON a.kehu_id = kehu.id
+        left JOIN yuangong yuangong ON a.yuangong_id = yuangong.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.kehuId != null and params.kehuId != ''">
+                and (
+                    a.kehu_id = #{params.kehuId}
+                )
+            </if>
+            <if test="params.yuangongId != null and params.yuangongId != ''">
+                and (
+                    a.yuangong_id = #{params.yuangongId}
+                    or kehu.yuangong_id = #{params.yuangongId}
+                )
+            </if>
+            <if test=" params.kehuFankuiUuidNumber != '' and params.kehuFankuiUuidNumber != null and params.kehuFankuiUuidNumber != 'null' ">
+                and a.kehu_fankui_uuid_number like CONCAT('%',#{params.kehuFankuiUuidNumber},'%')
+            </if>
+            <if test=" params.kehuFankuiName != '' and params.kehuFankuiName != null and params.kehuFankuiName != 'null' ">
+                and a.kehu_fankui_name like CONCAT('%',#{params.kehuFankuiName},'%')
+            </if>
+            <if test="params.kehuFankuiTypes != null and params.kehuFankuiTypes != ''">
+                and a.kehu_fankui_types = #{params.kehuFankuiTypes}
+            </if>
+            <if test=" params.fuwuTimeStart != '' and params.fuwuTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.fuwu_time) >= UNIX_TIMESTAMP(#{params.fuwuTimeStart}) ]]>
+            </if>
+            <if test=" params.fuwuTimeEnd != '' and params.fuwuTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.fuwu_time) <= UNIX_TIMESTAMP(#{params.fuwuTimeEnd}) ]]>
+            </if>
+            <if test="params.fuwuTime != null and params.fuwuTime != ''">
+                and a.fuwu_time = #{params.fuwuTime}
+            </if>
+            <if test=" params.kehuFankuiContent != '' and params.kehuFankuiContent != null and params.kehuFankuiContent != 'null' ">
+                and a.kehu_fankui_content like CONCAT('%',#{params.kehuFankuiContent},'%')
+            </if>
+            <if test="params.kehuFankuizhuangtaiTypes != null and params.kehuFankuizhuangtaiTypes != ''">
+                and a.kehu_fankuizhuangtai_types = #{params.kehuFankuizhuangtaiTypes}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test="params.insertTime != null and params.insertTime != ''">
+                and a.insert_time = #{params.insertTime}
+            </if>
+
+                <!-- 判断客户的id不为空 -->
+            <if test=" params.kehuIdNotNull != '' and params.kehuIdNotNull != null and params.kehuIdNotNull != 'null' ">
+                and a.kehu_id IS NOT NULL
+            </if>
+            <if test=" params.kehuUuidNumber != '' and params.kehuUuidNumber != null and params.kehuUuidNumber != 'null' ">
+                and kehu.kehu_uuid_number like CONCAT('%',#{params.kehuUuidNumber},'%')
+            </if>
+            <if test=" params.kehuName != '' and params.kehuName != null and params.kehuName != 'null' ">
+                and kehu.kehu_name like CONCAT('%',#{params.kehuName},'%')
+            </if>
+            <if test=" params.kehuPhone != '' and params.kehuPhone != null and params.kehuPhone != 'null' ">
+                and kehu.kehu_phone like CONCAT('%',#{params.kehuPhone},'%')
+            </if>
+            <if test=" params.kehuIdNumber != '' and params.kehuIdNumber != null and params.kehuIdNumber != 'null' ">
+                and kehu.kehu_id_number like CONCAT('%',#{params.kehuIdNumber},'%')
+            </if>
+            <if test="params.sexTypes != null  and params.sexTypes != ''">
+                and kehu.sex_types = #{params.sexTypes}
+            </if>
+
+            <if test=" params.kehuEmail != '' and params.kehuEmail != null and params.kehuEmail != 'null' ">
+                and kehu.kehu_email like CONCAT('%',#{params.kehuEmail},'%')
+            </if>
+            <if test=" params.kehuAddress != '' and params.kehuAddress != null and params.kehuAddress != 'null' ">
+                and kehu.kehu_address like CONCAT('%',#{params.kehuAddress},'%')
+            </if>
+            <if test="params.hangyeTypes != null  and params.hangyeTypes != ''">
+                and kehu.hangye_types = #{params.hangyeTypes}
+            </if>
+
+            <if test="params.zhiweiTypes != null  and params.zhiweiTypes != ''">
+                and kehu.zhiwei_types = #{params.zhiweiTypes}
+            </if>
+
+            <if test="params.diquTypes != null  and params.diquTypes != ''">
+                and kehu.diqu_types = #{params.diquTypes}
+            </if>
+
+                <!-- 判断员工的id不为空 -->
+            <if test=" params.yuangongIdNotNull != '' and params.yuangongIdNotNull != null and params.yuangongIdNotNull != 'null' ">
+                and a.yuangong_id IS NOT NULL
+            </if>
+            <if test=" params.yuangongUuidNumber != '' and params.yuangongUuidNumber != null and params.yuangongUuidNumber != 'null' ">
+                and yuangong.yuangong_uuid_number like CONCAT('%',#{params.yuangongUuidNumber},'%')
+            </if>
+            <if test=" params.yuangongName != '' and params.yuangongName != null and params.yuangongName != 'null' ">
+                and yuangong.yuangong_name like CONCAT('%',#{params.yuangongName},'%')
+            </if>
+            <if test=" params.yuangongPhone != '' and params.yuangongPhone != null and params.yuangongPhone != 'null' ">
+                and yuangong.yuangong_phone like CONCAT('%',#{params.yuangongPhone},'%')
+            </if>
+            <if test=" params.yuangongIdNumber != '' and params.yuangongIdNumber != null and params.yuangongIdNumber != 'null' ">
+                and yuangong.yuangong_id_number like CONCAT('%',#{params.yuangongIdNumber},'%')
+            </if>
+            <if test=" params.yuangongEmail != '' and params.yuangongEmail != null and params.yuangongEmail != 'null' ">
+                and yuangong.yuangong_email like CONCAT('%',#{params.yuangongEmail},'%')
+            </if>
+            <if test="params.jinyongTypes != null  and params.jinyongTypes != ''">
+                and yuangong.jinyong_types = #{params.jinyongTypes}
+            </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

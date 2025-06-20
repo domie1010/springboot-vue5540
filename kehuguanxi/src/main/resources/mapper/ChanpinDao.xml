@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ChanpinDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.chanpin_name as chanpinName
+        ,a.chanpin_uuid_number as chanpinUuidNumber
+        ,a.chanpin_photo as chanpinPhoto
+        ,a.chanpin_danwei as chanpinDanwei
+        ,a.chanpin_types as chanpinTypes
+        ,a.chanpin_old_money as chanpinOldMoney
+        ,a.chanpin_new_money as chanpinNewMoney
+        ,a.chanpin_cangku as chanpinCangku
+        ,a.chanpin_content as chanpinContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ChanpinView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+
+        FROM chanpin  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.chanpinName != '' and params.chanpinName != null and params.chanpinName != 'null' ">
+                and a.chanpin_name like CONCAT('%',#{params.chanpinName},'%')
+            </if>
+            <if test=" params.chanpinUuidNumber != '' and params.chanpinUuidNumber != null and params.chanpinUuidNumber != 'null' ">
+                and a.chanpin_uuid_number like CONCAT('%',#{params.chanpinUuidNumber},'%')
+            </if>
+            <if test=" params.chanpinDanwei != '' and params.chanpinDanwei != null and params.chanpinDanwei != 'null' ">
+                and a.chanpin_danwei like CONCAT('%',#{params.chanpinDanwei},'%')
+            </if>
+            <if test="params.chanpinTypes != null and params.chanpinTypes != ''">
+                and a.chanpin_types = #{params.chanpinTypes}
+            </if>
+            <if test="params.chanpinOldMoneyStart != null ">
+                <![CDATA[  and a.chanpin_old_money >= #{params.chanpinOldMoneyStart}   ]]>
+            </if>
+            <if test="params.chanpinOldMoneyEnd != null ">
+                <![CDATA[  and a.chanpin_old_money <= #{params.chanpinOldMoneyEnd}   ]]>
+            </if>
+            <if test="params.chanpinOldMoney != null and params.chanpinOldMoney != ''">
+                and a.chanpin_old_money = #{params.chanpinOldMoney}
+            </if>
+            <if test="params.chanpinNewMoneyStart != null ">
+                <![CDATA[  and a.chanpin_new_money >= #{params.chanpinNewMoneyStart}   ]]>
+            </if>
+            <if test="params.chanpinNewMoneyEnd != null ">
+                <![CDATA[  and a.chanpin_new_money <= #{params.chanpinNewMoneyEnd}   ]]>
+            </if>
+            <if test="params.chanpinNewMoney != null and params.chanpinNewMoney != ''">
+                and a.chanpin_new_money = #{params.chanpinNewMoney}
+            </if>
+            <if test=" params.chanpinCangku != '' and params.chanpinCangku != null and params.chanpinCangku != 'null' ">
+                and a.chanpin_cangku like CONCAT('%',#{params.chanpinCangku},'%')
+            </if>
+            <if test=" params.chanpinContent != '' and params.chanpinContent != null and params.chanpinContent != 'null' ">
+                and a.chanpin_content like CONCAT('%',#{params.chanpinContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test="params.insertTime != null and params.insertTime != ''">
+                and a.insert_time = #{params.insertTime}
+            </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
